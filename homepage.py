@@ -10,14 +10,15 @@ from kivy.uix.gridlayout import GridLayout
 from classes import Car
 
 class HomePageLayout(FloatLayout):
+    BUTTON_HEIGHT = 0.2
+    BUTTON_INITIAL_Y = 0.8
+
     def __init__(self):
         super().__init__()
 
-        self.button = Button(text='Add Car', size_hint=(1,0.1), pos_hint={'x':0, 'y':0})
-        self.button.bind(on_press=self.show_add_car_popup)
-        #self.add_widget(self.button)  
+        self.display_home_page()
 
-        self.display_saved_cars()
+
 
     def show_add_car_popup(self, instance):
         layout = GridLayout(cols=2)
@@ -43,6 +44,9 @@ class HomePageLayout(FloatLayout):
         self.popup = Popup(title='Add Car', content=layout, size_hint=(0.8,0.8))
         self.popup.open()
 
+
+
+
     def add_car_to_db(self, instance):
         new_make = self.make_input.text
         new_model = self.model_input.text
@@ -58,14 +62,20 @@ class HomePageLayout(FloatLayout):
 
         # Close the popup
         self.popup.dismiss()
-        self.display_saved_cars()
+        self.display_home_page()
 
-    def display_saved_cars(self):
+
+
+
+    def display_home_page(self):
         self.clear_widgets()
-        self.add_widget(self.button)
+
+        self.add_car_button = Button(text='Add Car', size_hint=(1,0.1), pos_hint={'x':0, 'y':0})
+        self.add_car_button.bind(on_press=self.show_add_car_popup)
+        self.add_widget(self.add_car_button)
 
         with shelve.open('car_database') as db:
-            button_count = 0.8
+            button_count = self.BUTTON_INITIAL_Y
             for car_id in db:
                 car = db[car_id]
                 if car.name != '':
@@ -75,6 +85,9 @@ class HomePageLayout(FloatLayout):
                 car_button.bind(on_press=lambda instance, c=car: self.show_car_details(c))
                 self.add_widget(car_button)
                 button_count -= 0.2
+
+
+
 
     def show_car_details(self, car):
         # Create a popup or new screen to show car details
