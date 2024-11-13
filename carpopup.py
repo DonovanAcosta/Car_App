@@ -6,6 +6,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 
 from classes import Car
+from logspage import LogsPage
 
 class CarPopUp(FloatLayout):
     def __init__(self, car, homepage):
@@ -37,7 +38,7 @@ class CarPopUp(FloatLayout):
 
         ###View Logs Button
         view_logs_button = Button(text="View Logs", size_hint=(0.33, 0.1), pos_hint={'x':0.66, 'y':0.0})
-        view_logs_button.bind(on_press=lambda instance: self.view_car_logs(car))
+        view_logs_button.bind(on_press=lambda instance, c=car: LogsPage(car=c, carpopup=self))
         layout.add_widget(view_logs_button)
 
 
@@ -72,12 +73,16 @@ class CarPopUp(FloatLayout):
         confirmation_popup.open() 
 
     def delete_car(self, car, confirmation_popup):
+        ###Delete Car
         with shelve.open('car_database') as db:
             del db[car.id]
             print(f'Car {car.name} with ID {car.id} deleted.')
 
+        ##close confirmation
         confirmation_popup.dismiss()
+        ##close car popup
         self.popup.dismiss()
+        ###Refresh homepage with changes
         self.homepage.display_home_page()
 
 
