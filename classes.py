@@ -39,11 +39,13 @@ class Maintenance:
     
 
 class Mod:
-    def __init__(self, Mechanic, PartName, Description, Tracker):
+    def __init__(self, Name, Date, Mechanic, PartName, Description):
+        self.name = Name
+        self.date = Date
         self.mechanic = Mechanic
         self.partname = PartName
         self.description = Description
-        self.tracker = Tracker
+        
 
         
         

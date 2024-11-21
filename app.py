@@ -3,7 +3,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
 
 from homepage import Homepage
 from carpage import CarPage
-#from screenlogpage import LogPage
+from logpage import LogPage
 
 class MyApp(App):
     def build(self):
@@ -16,12 +16,11 @@ class MyApp(App):
         
         self.carpage = CarPage(name='Car')
         self.screen_manager.add_widget(self.carpage)
-        '''
-        self.logpage = LogPage()
-        screen = Screen(name='log')
-        screen.add_widget(self.logpage)
-        self.screen_manager.add_widget(screen)
-        '''
+        
+        self.logpage = LogPage(name='Log')
+        self.screen_manager.add_widget(self.logpage)
+
+        
         return self.screen_manager
     
 myapp = MyApp()

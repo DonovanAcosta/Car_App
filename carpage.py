@@ -38,7 +38,7 @@ class CarPage(Screen):
 
         ###View Logs Button
         view_logs_button = Button(text='View Logs', size_hint=(0.33,0.1), pos_hint={'x':0.66,'y':0.0})
-        #view_logs_button.bind(on_press=lambda instance:self.open_logs_page())
+        view_logs_button.bind(on_press=lambda instance:self.open_logs_page())
         self.add_widget(view_logs_button)
 
         ###Back Button
@@ -104,7 +104,7 @@ class CarPage(Screen):
         Update car details in the database.
         """
         self.car.make = self.make_input.text
-        self.car.model = self.make_input.text
+        self.car.model = self.model_input.text
         self.car.year = self.year_input.text
         self.car.name = self.name_input.text
 
@@ -118,8 +118,10 @@ class CarPage(Screen):
         self.manager.current = 'Home'
 
     def open_logs_page(self):
-        log_page=self.manager.get_screen('Log')
-        log_page.display_logs(self.car)
+        log_screen=self.manager.get_screen('Log')
+        log_page = log_screen
+        log_page.display_log_page(self.car)
+        self.manager.transition.direction = 'left'
         self.manager.current='Log'
 
     def back(self, instance):

@@ -48,14 +48,17 @@ class Homepage(FloatLayout):
         self.year_input = TextInput(hint_text='Year', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.4})
         self.name_input = TextInput(hint_text='Name(Optional)', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.25})
 
-        submit_button = Button(text='Submit', size_hint = (0.5,0.1), pos_hint={'x':0.25,'y':0.1})
+        submit_button = Button(text='Submit', size_hint = (0.4,0.1), pos_hint={'x':0.1,'y':0.1})
         submit_button.bind(on_press=self.add_car_to_db)
+        cancel_button = Button(text='Cancel', size_hint = (0.4, 0.1), pos_hint={'x':0.5,'y':0.1})
+        cancel_button.bind(on_press=self.close_popup)
 
         layout.add_widget(self.make_input)
         layout.add_widget(self.model_input)
         layout.add_widget(self.year_input)
         layout.add_widget(self.name_input)
         layout.add_widget(submit_button)
+        layout.add_widget(cancel_button)
 
         self.popup = Popup(title='Add Car', content=layout, size_hint=(0.8, 0.8))
         self.popup.open()
@@ -74,3 +77,6 @@ class Homepage(FloatLayout):
 
         self.popup.dismiss()
         self.display_home_page()
+
+    def close_popup(self, instance):
+        self.popup.dismiss()
