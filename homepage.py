@@ -5,27 +5,50 @@ from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 
-from carpopup import CarPopUp
 from classes import Car
 
-class HomePageLayout(FloatLayout):
-    BUTTON_HEIGHT = 0.2
-    BUTTON_INITIAL_Y = 0.8
+class Homepage(FloatLayout):
+    BUTTON_SIZE = (1,0.2)
+    BUTTON_Y = 0.8
 
-    def __init__(self):
+    def __init__(self, screen_manager):
         super().__init__()
+        self.screen_manager = screen_manager
         self.display_home_page()
+
+    def display_home_page(self):
+        self.clear_widgets()
+
+        self.add_car_button = Button(text='Add Car', size_hint=(1,0.1), pos_hint={'x':0,'y':0})
+        self.add_car_button.bind(on_press=self.show_add_car_popup)
+        self.add_widget(self.add_car_button)
+
+        with shelve.open('car_database') as db:
+            button_count = self.BUTTON_Y
+            for car_id in db:
+                car = db[car_id]
+                car_button_text = car.name if car.name !='' else f'{car.make}: {car.model}'
+                car_button = Button(text=car_button_text, size_hint=self.BUTTON_SIZE, pos_hint={'x':0,'y':button_count})
+                car_button.bind(on_press=lambda _, car=car: self.show_car_page(car))
+                self.add_widget(car_button)
+                button_count -= 0.2
+
+    def show_car_page(self, car):
+        carpage = self.screen_manager.get_screen('Car')
+        carpage.display_car_info(car)
+        self.screen_manager.transition.direction = 'left'
+        self.screen_manager.current = 'Car'
 
     def show_add_car_popup(self, instance):
         layout = FloatLayout()
 
-        # Position elements using pos_hint and size_hint
-        self.make_input = TextInput(hint_text='Make', size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.7})
-        self.model_input = TextInput(hint_text='Model', size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.55})
-        self.year_input = TextInput(hint_text='Year', size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.4})
-        self.name_input = TextInput(hint_text='Name(Optional)', size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.25})
+        INPUT_SIZE = (0.8,0.1)
+        self.make_input = TextInput(hint_text='Make', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.7})
+        self.model_input = TextInput(hint_text='Model', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.55})
+        self.year_input = TextInput(hint_text='Year', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.4})
+        self.name_input = TextInput(hint_text='Name(Optional)', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.25})
 
-        submit_button = Button(text='Submit', size_hint=(0.5, 0.1), pos_hint={'x': 0.25, 'y': 0.1})
+        submit_button = Button(text='Submit', size_hint = (0.5,0.1), pos_hint={'x':0.25,'y':0.1})
         submit_button.bind(on_press=self.add_car_to_db)
 
         layout.add_widget(self.make_input)
@@ -51,21 +74,3 @@ class HomePageLayout(FloatLayout):
 
         self.popup.dismiss()
         self.display_home_page()
-
-    def display_home_page(self):
-        self.clear_widgets()
-
-        self.add_car_button = Button(text='Add Car', size_hint=(1,0.1), pos_hint={'x':0, 'y':0})
-        self.add_car_button.bind(on_press=self.show_add_car_popup)
-        self.add_widget(self.add_car_button)
-
-        with shelve.open('car_database') as db:
-            button_count = self.BUTTON_INITIAL_Y
-            for car_id in db:
-                car = db[car_id]
-                car_button_text = car.name if car.name != '' else f'{car.make}: {car.model}'
-                car_button = Button(text=car_button_text, size_hint=(1,0.2), pos_hint={'x':0, 'y':button_count})
-                car_button.bind(on_press=lambda instance, c=car: CarPopUp(car=c, homepage=self))
-                self.add_widget(car_button)
-                button_count -= 0.2
-
