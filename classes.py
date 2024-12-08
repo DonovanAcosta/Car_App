@@ -1,4 +1,6 @@
 import random
+from datetime import datetime
+
 
 
 class Car:
@@ -32,10 +34,11 @@ class Maintenance:
         self.description = Description
         self.unit = Unit
         self.freq = Freq
-        self.lastdate = LastDate
+        self.date = LastDate
 
-    def updateLastDate(self):
-        return
+    def calcNextDate(self):
+        date_obj = datetime.strptime(self.date, "%Y-%m-%d")
+        
     
 
 class Mod:

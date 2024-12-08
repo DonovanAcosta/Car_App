@@ -36,6 +36,17 @@ class LogPage(Screen):
         add_mod_button.bind(on_press=self.show_add_mod_popup)
         self.add_widget(add_mod_button)
 
+
+        ###Load logs onto Screen
+        logs = self.load_logs()
+
+        log_y = 0.9
+        for log in logs:
+            log_label = Button(text=self.format_log_entry(log), size_hint=(1,0.1),pos_hint={'x':0.0,'y':log_y})
+            log_label.bind(on_press=lambda instance, log=log: self.show_log_popup(instance, log))
+            self.add_widget(log_label)
+            log_y-=0.1
+
     def show_add_mait_popup(self, instance):
         INPUT_SIZE = (0.8,0.1)
         layout = FloatLayout()
@@ -95,6 +106,7 @@ class LogPage(Screen):
 
         self.save_to_database(maintenance)
         self.popup.dismiss()
+        self.display_log_page(self.car)
 
     def show_add_mod_popup(self, instance):
         INPUT_SIZE = (0.8,0.1)
@@ -142,6 +154,7 @@ class LogPage(Screen):
 
         self.save_to_database(mod)
         self.popup.dismiss()
+        self.display_log_page(self.car)
 
 
     def save_to_database(self, entry):
@@ -150,7 +163,7 @@ class LogPage(Screen):
         
         # Create a unique key
         if isinstance(entry, Maintenance):
-            key = f"maintenance_{entry.name}_{entry.lastdate}"
+            key = f"maintenance_{entry.name}_{entry.date}"
         elif isinstance(entry, Mod):
             key = f"mod_{entry.name}_{entry.date}"
         else:
@@ -171,6 +184,38 @@ class LogPage(Screen):
         car_page_screen.display_car_info(self.car)
         self.manager.transition.direction = 'right'
         self.manager.current = 'Car'
+
+    def load_logs(self):
+        """
+        Load and return a list of logs (maintenance and mods) sorted by date.
+        """
+        logs = []
+        with shelve.open(f"cars/{self.car.id}db") as db:
+            for key in db:
+                logs.append(db[key])
+        # Sort logs by date in descending order
+        logs.sort(key=lambda entry: datetime.strptime(entry.date if isinstance(entry, Mod) else entry.date, "%Y-%m-%d"), reverse=True)
+        return logs
+
+    def format_log_entry(self, log):
+        """
+        Format a log entry for display.
+        """
+        if isinstance(log, Maintenance):
+            return f"{log.name} (Maintenance)"
+        elif isinstance(log, Mod):
+            return f"{log.name} (Mod)"
+        return "Unknown Log Entry"
+    
+    def show_log_popup(self, instance, log):
+        layout=FloatLayout()
+        label = Label(text=f'Date:{log.date}\n')
+        layout.add_widget(label)
+
+        self.popup = Popup(title=f'{log.name}', content=layout, size_hint=(0.8, 0.8))
+        self.popup.open()
+
+        return
 
 
 
