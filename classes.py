@@ -14,8 +14,9 @@ class Car:
         self.check()
 
     def check(self):
-        if (self.model == self.make == self.name == 'none'):
-            return 1
+        if not self.model or not self.make or not self.year:
+            return "Make, Model and Year are required fields"
+        return None
 
     def getLog(self):
         return

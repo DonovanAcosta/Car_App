@@ -5,6 +5,7 @@ from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 from kivy.uix.screenmanager import Screen
+from kivy.graphics import Color, Rectangle
 
 from classes import Car
 #from screenlogspage import LogsPage
@@ -13,6 +14,14 @@ class CarPage(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
         self.car = None
+        self.bind(size=self.update_background, pos=self.update_background)
+        with self.canvas.before:
+            self.bg_color = Color(0.05, 0.1, 0.2, 1)
+            self.bg_rect = Rectangle(size=self.size, pos=self.pos)
+    
+    def update_background(self, *args):
+        self.bg_rect.size = self.size
+        self.bg_rect.pos = self.pos
 
     def display_car_info(self, car):
         self.car =car
@@ -27,22 +36,24 @@ class CarPage(Screen):
         self.add_widget(detail_label)
 
         ###Delete Button
-        delete_button = Button(text='Delete Car', size_hint=(0.33,0.1), pos_hint={'x':0.0,'y':0.0})
+
+        delete_button = Button(text='Delete Car', size_hint=(0.33,0.1), pos_hint={'x':0.0,'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         delete_button.bind(on_press=self.show_delete_confirmation)
         self.add_widget(delete_button)
 
         ###Edit Button
-        edit_button = Button(text='Edit Details', size_hint=(0.33, 0.1), pos_hint={'x':0.33, 'y':0.0})
+        edit_button = Button(text='Edit Details', size_hint=(0.33, 0.1), pos_hint={'x':0.33, 'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         edit_button.bind(on_press=self.show_edit_car_popup)
         self.add_widget(edit_button)
 
         ###View Logs Button
-        view_logs_button = Button(text='View Logs', size_hint=(0.33,0.1), pos_hint={'x':0.66,'y':0.0})
+        view_logs_button = Button(text='View Logs', size_hint=(0.34,0.1), pos_hint={'x':0.66,'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
+
         view_logs_button.bind(on_press=lambda instance:self.open_logs_page())
         self.add_widget(view_logs_button)
 
         ###Back Button
-        back_button = Button(text='<-', size_hint=(0.1,0.1), pos_hint={'x':0.0,'y':0.9})
+        back_button = Button(text='<-', size_hint=(0.1,0.1), pos_hint={'x':0.0,'y':0.9},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         back_button.bind(on_press=self.back)
         self.add_widget(back_button)
 
@@ -51,13 +62,15 @@ class CarPage(Screen):
         label = Label(text='Are you sure you want to delete this car?', size_hint=(0.8,0.3),pos_hint={'x':0.1,'y':0.5})
         layout.add_widget(label)
 
-        confirmation_popop= Popup(title="Confirm Deletion", content=layout, size_hint=(0.6,0.4))
+        confirmation_popop = Popup(title="Confirm Deletion", content=layout, size_hint=(0.6,0.4),background='')
+        confirmation_popop.background_color = (0.05, 0.1, 0.2, 0.8)
+        confirmation_popop.title_color = [1,1,1,1]
 
-        yes_button = Button(text='yes', size_hint=(0.4,0.2), pos_hint={'x':0.05,'y':0.2})
+        yes_button = Button(text='Yes', size_hint=(0.4,0.2), pos_hint={'x':0.05,'y':0.2}, background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         yes_button.bind(on_press=lambda instance: self.delete_car(confirmation_popop))
         layout.add_widget(yes_button)
 
-        no_button = Button(text='no', size_hint=(0.4,0.2), pos_hint={'x':0.55,'y':0.2})
+        no_button = Button(text='No', size_hint=(0.4,0.2), pos_hint={'x':0.55,'y':0.2}, background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         no_button.bind(on_press=confirmation_popop.dismiss)
         layout.add_widget(no_button)
 
@@ -82,12 +95,12 @@ class CarPage(Screen):
         """
         layout = FloatLayout()
 
-        self.make_input = TextInput(text=self.car.make, size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.7})
-        self.model_input = TextInput(text=self.car.model, size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.55})
-        self.year_input = TextInput(text=self.car.year, size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.4})
-        self.name_input = TextInput(text=self.car.name, size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.25})
+        self.make_input = TextInput(text=self.car.make, size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.7}, background_color = (1,1,1, 0.7))
+        self.model_input = TextInput(text=self.car.model, size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.55}, background_color = (1,1,1, 0.7))
+        self.year_input = TextInput(text=self.car.year, size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.4}, background_color = (1,1,1, 0.7))
+        self.name_input = TextInput(text=self.car.name, size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.25}, background_color = (1,1,1, 0.7))
 
-        submit_button = Button(text='Save Changes', size_hint=(0.5, 0.1), pos_hint={'x': 0.25, 'y': 0.1})
+        submit_button = Button(text='Save Changes', size_hint=(0.5, 0.1), pos_hint={'x': 0.25, 'y': 0.1},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         submit_button.bind(on_press=self.update_car_in_db)
 
         layout.add_widget(self.make_input)
@@ -96,7 +109,8 @@ class CarPage(Screen):
         layout.add_widget(self.name_input)
         layout.add_widget(submit_button)
 
-        self.edit_popup = Popup(title='Edit Car', content=layout, size_hint=(0.8, 0.8))
+        self.edit_popup = Popup(title='Edit Car', content=layout, size_hint=(0.8, 0.8), background = '')
+        self.edit_popup.background_color = (0.05, 0.1, 0.2, 1)
         self.edit_popup.open()
 
     def update_car_in_db(self, instance):
