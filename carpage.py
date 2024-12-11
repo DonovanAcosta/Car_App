@@ -29,14 +29,13 @@ class CarPage(Screen):
 
         ####Information label
         detail_label =Label(
-            text=f'ID: {car.id}\nMake: {car.make}\nModel: {car.model}\nYear: {car.year}\nName: {car.name}',
+            text=f'ID: {car.id}\nMake: {car.make}\nModel: {car.model}\nYear: {car.year}\nMileage: {car.mileage}\nName: {car.name}',
             size_hint=(0.8,0.4),
             pos_hint={'x':0.1,'y':0.5}
         )
         self.add_widget(detail_label)
 
         ###Delete Button
-
         delete_button = Button(text='Delete Car', size_hint=(0.33,0.1), pos_hint={'x':0.0,'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         delete_button.bind(on_press=self.show_delete_confirmation)
         self.add_widget(delete_button)
@@ -48,7 +47,6 @@ class CarPage(Screen):
 
         ###View Logs Button
         view_logs_button = Button(text='View Logs', size_hint=(0.34,0.1), pos_hint={'x':0.66,'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
-
         view_logs_button.bind(on_press=lambda instance:self.open_logs_page())
         self.add_widget(view_logs_button)
 
@@ -95,10 +93,12 @@ class CarPage(Screen):
         """
         layout = FloatLayout()
 
-        self.make_input = TextInput(text=self.car.make, size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.7}, background_color = (1,1,1, 0.7))
-        self.model_input = TextInput(text=self.car.model, size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.55}, background_color = (1,1,1, 0.7))
-        self.year_input = TextInput(text=self.car.year, size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.4}, background_color = (1,1,1, 0.7))
-        self.name_input = TextInput(text=self.car.name, size_hint=(0.8, 0.1), pos_hint={'x': 0.1, 'y': 0.25}, background_color = (1,1,1, 0.7))
+        INPUT_SIZE = (0.8,0.1)
+        self.make_input = TextInput(text=self.car.make, size_hint=INPUT_SIZE, pos_hint={'x': 0.1, 'y': 0.75}, background_color = (1,1,1, 0.7))
+        self.model_input = TextInput(text=self.car.model, size_hint=INPUT_SIZE, pos_hint={'x': 0.1, 'y': 0.65}, background_color = (1,1,1, 0.7))
+        self.year_input = TextInput(text=self.car.year, size_hint=INPUT_SIZE, pos_hint={'x': 0.1, 'y': 0.55}, background_color = (1,1,1, 0.7))
+        self.mileage_input = TextInput(text=str(self.car.mileage), size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.45}, background_color = (1,1,1, 0.7))
+        self.name_input = TextInput(text=self.car.name, size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.35}, background_color = (1,1,1, 0.7))
 
         submit_button = Button(text='Save Changes', size_hint=(0.5, 0.1), pos_hint={'x': 0.25, 'y': 0.1},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         submit_button.bind(on_press=self.update_car_in_db)
@@ -106,6 +106,7 @@ class CarPage(Screen):
         layout.add_widget(self.make_input)
         layout.add_widget(self.model_input)
         layout.add_widget(self.year_input)
+        layout.add_widget(self.mileage_input)
         layout.add_widget(self.name_input)
         layout.add_widget(submit_button)
 
@@ -120,7 +121,25 @@ class CarPage(Screen):
         self.car.make = self.make_input.text
         self.car.model = self.model_input.text
         self.car.year = self.year_input.text
+        self.car.mileage = self.mileage_input.text
         self.car.name = self.name_input.text
+
+        validation_error = self.car.check()
+        if validation_error:
+            error_popup = Popup(
+                title="Error",
+                content=Label(
+                    text=validation_error,
+                    color=(1, 0, 0, 1),  # Red text
+                    halign="center",
+                    valign="middle",
+                ),
+                size_hint=(0.6, 0.4),
+                background ='',
+                background_color=(0.05, 0.1, 0.2, 1),
+            )
+            error_popup.open()
+            return 
 
         with shelve.open('car_database') as db:
             db[self.car.id] = self.car

@@ -32,7 +32,6 @@ class LogPage(Screen):
 
         ###Back Button
         back_button = Button(text='<-', size_hint=(0.33,0.1), pos_hint={'x':0.0,'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
-
         back_button.bind(on_press=self.backward)
         self.add_widget(back_button)
 
@@ -79,11 +78,11 @@ class LogPage(Screen):
             dropdown.add_widget(btn)
 
 
-
         self.unit_button = Button(text='Select Unit', size_hint=(0.4,0.1), pos_hint={'x':0.5,'y':0.425},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         self.unit_button.bind(on_release=dropdown.open)
         dropdown.bind(on_select=lambda instance, x:setattr(self.unit_button, 'text',x))
         layout.add_widget(self.unit_button)
+
 
         self.descr_input = TextInput(hint_text='Description', size_hint=(0.8, 0.3), pos_hint={'x':0.1, 'y':0.125}, background_color = (1,1,1, 0.7))
 
@@ -91,7 +90,6 @@ class LogPage(Screen):
         submit_button = Button(text='Submit', size_hint=(0.4,0.1), pos_hint={'x':0.1, 'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         submit_button.bind(on_press=self.add_maintenance)
         cancel_button = Button(text='Cancel', size_hint=(0.4,0.1), pos_hint={'x':0.5, 'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
-
         cancel_button.bind(on_press=self.close_popup)
 
         ###Add widgets
@@ -130,7 +128,6 @@ class LogPage(Screen):
         #############################
         ###Input for maintenance info
         #############################
-
         self.name_input = TextInput(hint_text='Mod Name', size_hint=INPUT_SIZE, pos_hint={'x':0.1, 'y':0.725}, background_color = (1,1,1, 0.7))
         self.date_input = TextInput(hint_text="Date (YYYY-MM-DD)", size_hint=INPUT_SIZE, pos_hint={'x': 0.1, 'y': 0.575}, background_color = (1,1,1, 0.7))
         self.part_input = TextInput(hint_text='Part Name', size_hint=(0.3,0.1), pos_hint={'x':0.1, 'y':0.425}, background_color = (1,1,1, 0.7))
@@ -141,7 +138,6 @@ class LogPage(Screen):
         submit_button = Button(text='Submit', size_hint=(0.4,0.1), pos_hint={'x':0.1, 'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         submit_button.bind(on_press=self.add_mod)
         cancel_button = Button(text='Cancel', size_hint=(0.4,0.1), pos_hint={'x':0.5, 'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
-
         cancel_button.bind(on_press=self.close_popup)
 
         ###Add widgets

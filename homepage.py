@@ -62,10 +62,11 @@ class Homepage(FloatLayout):
         layout = FloatLayout()
 
         INPUT_SIZE = (0.8,0.1)
-        self.make_input = TextInput(hint_text='Make', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.7}, background_color = (1,1,1, 0.7))
-        self.model_input = TextInput(hint_text='Model', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.55}, background_color = (1,1,1, 0.7))
-        self.year_input = TextInput(hint_text='Year', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.4}, background_color = (1,1,1, 0.7))
-        self.name_input = TextInput(hint_text='Name(Optional)', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.25}, background_color = (1,1,1, 0.7))
+        self.make_input = TextInput(hint_text='Make', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.75}, background_color = (1,1,1, 0.7))
+        self.model_input = TextInput(hint_text='Model', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.65}, background_color = (1,1,1, 0.7))
+        self.year_input = TextInput(hint_text='Year', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.55}, background_color = (1,1,1, 0.7))
+        self.mileage_input = TextInput(hint_text='Mileage', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.45}, background_color = (1,1,1, 0.7))
+        self.name_input = TextInput(hint_text='Name(Optional)', size_hint=INPUT_SIZE, pos_hint={'x':0.1,'y':0.35}, background_color = (1,1,1, 0.7))
 
         submit_button = Button(
             text='Submit',
@@ -85,6 +86,7 @@ class Homepage(FloatLayout):
         layout.add_widget(self.make_input)
         layout.add_widget(self.model_input)
         layout.add_widget(self.year_input)
+        layout.add_widget(self.mileage_input)
         layout.add_widget(self.name_input)
         layout.add_widget(submit_button)
         layout.add_widget(cancel_button)
@@ -93,6 +95,7 @@ class Homepage(FloatLayout):
 
         self.popup.title_color = [1, 1, 1, 1]
         self.popup.background_color = (0.05, 0.1, 0.2, 1)
+
         self.popup.open()
 
     def add_car_to_db(self, instance):
@@ -100,25 +103,26 @@ class Homepage(FloatLayout):
         new_model = self.model_input.text
         new_year = self.year_input.text
         new_name = self.name_input.text
+        new_milage = self.mileage_input.text
 
-        new_car = Car(Make=new_make, Model=new_model, Year=new_year, Name=new_name)
+        new_car = Car(Make=new_make, Model=new_model, Year=new_year, Name=new_name, Mileage=new_milage)
 
-        validation_check = new_car.check()
-        if validation_check:
+        validation_error = new_car.check()
+        if validation_error:
             error_popup = Popup(
-                title = "Error",
-                content = Label(
-                    text = validation_check,
-                    color = (1,0,0,1),
-                    halign = "center",
-                    valign = "middle",
+                title="Error",
+                content=Label(
+                    text=validation_error,
+                    color=(1, 0, 0, 1),  # Red text
+                    halign="center",
+                    valign="middle",
                 ),
-                size_hint = (0.6,0.4),
-                background = '',
+                size_hint=(0.6, 0.4),
+                background ='',
+                background_color=(0.05, 0.1, 0.2, 1),
             )
-            error_popup.background_color = (0.05, 0.1, 0.2, 1)
             error_popup.open()
-            return
+            return 
 
         with shelve.open('car_database') as db:
             db[new_car.id] = new_car
