@@ -23,14 +23,6 @@ class Car:
         self.mileage = int(self.mileage)
         return None
 
-    def getLog(self):
-        return
-
-    def addMaintenance(self, name, date, unit, freq):
-        return
-
-    def addMod(self, date, mech, part, track):
-        return
 
     
 
@@ -41,16 +33,17 @@ class Maintenance:
         self.unit = Unit
         self.freq = Freq
         self.date = LastDate
+        self.realdate = datetime.strptime(LastDate, "%Y-%m-%d")
 
     def calcNextDate(self, car = None):
         if self.unit == "Months":
-            next_date = self.date + relativedelta(months=self.freq)
+            next_date = self.realdate + relativedelta(months=int(self.freq))
             return next_date.strftime("%Y-%m-%d")
         elif self.unit == "Days":
-            next_date = self.date + relativedelta(days =self.freq)
+            next_date = self.realdate + relativedelta(days=int(self.freq))
             return next_date.strftime("%Y-%m-%d")
         elif self.unit == "Miles":
-            next_mileage = car.mileage + self.freq
+            next_mileage = car.mileage + int(self.freq)
             return next_mileage
           
 class Mod:

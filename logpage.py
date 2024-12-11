@@ -10,6 +10,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.graphics import Color, Rectangle
 
 from classes import Maintenance, Mod
+from classes import Notification
 
 class LogPage(Screen):
     def __init__(self, **kwargs):
@@ -175,6 +176,7 @@ class LogPage(Screen):
         # Create a unique key
         if isinstance(entry, Maintenance):
             key = f"maintenance_{entry.name}_{entry.date}"
+            self.create_Notification(self.car, entry)
         elif isinstance(entry, Mod):
             key = f"mod_{entry.name}_{entry.date}"
         else:
@@ -229,5 +231,13 @@ class LogPage(Screen):
 
         return
 
+    def create_Notification(instance, car, mait):
+        next_date = mait.calcNextDate(car)
+        notification = Notification(car.id, mait.name, next_date)
+
+        with shelve.open("Notifications") as db:
+            db[notification.notificationId] = notification
+            print(f"Notification '{notification.maitenance}' add to the database with ID: {notification.notificationId}")
+        return
 
 
