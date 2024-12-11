@@ -1,7 +1,6 @@
 from plyer import notification
 import shelve
 from datetime import datetime
-import os
 
 def check_and_notify():
     """Check for upcoming notifications and send them."""

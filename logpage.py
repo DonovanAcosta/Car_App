@@ -1,4 +1,5 @@
 import shelve
+from notification_set import notification_set
 from datetime import datetime
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
@@ -222,14 +223,109 @@ class LogPage(Screen):
     
     def show_log_popup(self, instance, log):
         layout=FloatLayout()
-        label = Label(text=f'Date:{log.date}\n')
+        ###Information Label
+        if isinstance(log, Maintenance):
+            label = Label(text=f'Date: {log.date}\nNext Service: {log.calcNextDate()}\nEvery: {log.freq} {log.unit}\nDescription: {log.description}', pos_hint={'x':0.0, 'y':0.3})
+        elif isinstance(log, Mod):
+            label = Label(text=f'Date: {log.date}\nInstalled by: {log.mechanic}\nDescription: {log.description}', pos_hint={'x':0.0, 'y':0.3})
         layout.add_widget(label)
+
+        #Delete Button
+        delete_button = Button(text='Delete', size_hint=(0.25,0.1), pos_hint={'x':0.0, 'y':0.0} )
+        delete_button.bind(on_press=lambda instance: self.delete_log(self, log))
+        layout.add_widget(delete_button)
+
+        ###Edit
+        edit_button = Button(text='Edit', size_hint=(0.25,0.1), pos_hint={'x':0.25,'y':0.0})
+        edit_button.bind(on_press=lambda instance: self.mait_popup_again(self, log, 'Edit'))
+        layout.add_widget(edit_button)
+
+        ##Notify Button
+        notify_button = Button(text='Notify Me', size_hint=(0.25,0.1), pos_hint={'x':0.50,'y':0.0})
+        notify_button.bind(on_press=lambda instance: self.create_Notification(self.car, log))
+        layout.add_widget(notify_button)
+
+        ###Update Button
+        update_button = Button(text='Update', size_hint=(0.25,0.1), pos_hint={'x':0.75,'y':0.0})
+        update_button.bind(on_press=lambda instance: self.mait_popup_again(self, log, 'Update'))
+        layout.add_widget(update_button)
 
         self.popup = Popup(title=f'{log.name}', content=layout, size_hint=(0.8, 0.8), background='')
         self.popup.background_color = (0.05, 0.1, 0.2, 1)
         self.popup.open()
 
         return
+    
+    def delete_log(instance, self, log):
+        entry_type = type(log).__name__.lower()  # e.g., "maintenance" or "mod"
+        
+        # Create a unique key
+        if isinstance(log, Maintenance):
+            key = f"maintenance_{log.name}_{log.date}"
+        elif isinstance(log, Mod):
+            key = f"mod_{log.name}_{log.date}"
+        else:
+            raise ValueError("Unsupported entry type")
+
+        with shelve.open(f"cars/{self.car.id}db") as db:
+            if key in db:
+                del db[key]
+        self.popup.dismiss()
+        self.display_log_page(self.car)
+
+    def mait_popup_again(self, instance, log, version):
+        INPUT_SIZE = (0.8,0.1)
+        layout = FloatLayout()
+        today = datetime.now()
+
+        title = Label(text=f'Maintenance for {self.car.name}', size_hint=(1,0.2), pos_hint={'x':0,'y':0.8})
+        layout.add_widget(title)
+
+        #############################
+        ###Input for maintenance info
+        #############################
+        self.name_input = TextInput(text=log.name, size_hint=INPUT_SIZE, pos_hint={'x':0.1, 'y':0.725}, background_color = (1,1,1, 0.7))
+        if version == 'Update':
+            self.date_input = TextInput(text=today.strftime('%Y-%m-%d'), size_hint=INPUT_SIZE, pos_hint={'x': 0.1, 'y': 0.575}, background_color = (1,1,1, 0.7))
+        elif version == 'Edit':
+            self.date_input = TextInput(text=log.date, size_hint=INPUT_SIZE, pos_hint={'x': 0.1, 'y': 0.575}, background_color = (1,1,1, 0.7))
+        self.freq_input = TextInput(text=log.freq, size_hint=(0.3,0.1), pos_hint={'x':0.1, 'y':0.425}, background_color = (1,1,1, 0.7))
+        
+        ###Drop down box
+        dropdown = DropDown()
+        for unit in ['Days','Months', "Miles"]:
+            btn = Button(text=unit, size_hint_y=None, height = 44,background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
+            btn.bind(on_release=lambda btn: dropdown.select(btn.text))
+            dropdown.add_widget(btn)
+
+
+        self.unit_button = Button(text='Select Unit', size_hint=(0.4,0.1), pos_hint={'x':0.5,'y':0.425},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
+        self.unit_button.bind(on_release=dropdown.open)
+        dropdown.bind(on_select=lambda instance, x:setattr(self.unit_button, 'text',x))
+        layout.add_widget(self.unit_button)
+
+
+        self.descr_input = TextInput(text=log.description, size_hint=(0.8, 0.3), pos_hint={'x':0.1, 'y':0.125}, background_color = (1,1,1, 0.7))
+
+        ###Submit and Cancel buttons
+        submit_button = Button(text='Submit', size_hint=(0.4,0.1), pos_hint={'x':0.1, 'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
+        submit_button.bind(on_press=self.add_maintenance)
+        cancel_button = Button(text='Cancel', size_hint=(0.4,0.1), pos_hint={'x':0.5, 'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
+        cancel_button.bind(on_press=self.close_popup)
+
+        ###Add widgets
+        layout.add_widget(self.name_input)
+        layout.add_widget(self.date_input)
+        layout.add_widget(self.freq_input)
+        layout.add_widget(self.descr_input)
+        layout.add_widget(submit_button)
+        layout.add_widget(cancel_button)
+
+        ###Create Popup
+        self.popup = Popup(title='Add Maintenance', content=layout, size_hint=(0.8, 0.8), background='')
+        self.popup.background_color = (0.05, 0.1, 0.2, 1)
+        self.popup.open()
+        
 
     def create_Notification(instance, car, mait):
         next_date = mait.calcNextDate(car)
@@ -238,6 +334,7 @@ class LogPage(Screen):
         with shelve.open("Notifications") as db:
             db[notification.notificationId] = notification
             print(f"Notification '{notification.maitenance}' add to the database with ID: {notification.notificationId}")
+            notification_set(mait)
         return
 
 
