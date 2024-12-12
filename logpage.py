@@ -118,7 +118,6 @@ class LogPage(Screen):
 
         self.save_to_database(maintenance)
         self.popup.dismiss()
-        self.logpopup.dismiss()
         self.display_log_page(self.car)
 
     def show_add_mod_popup(self, instance):
@@ -210,7 +209,7 @@ class LogPage(Screen):
             for key in db:
                 logs.append(db[key])
         # Sort logs by date in descending order
-        logs.sort(key=lambda entry: datetime.strptime(entry.date if isinstance(entry, Mod) else entry.date, "%Y-%m-%d"), reverse=True)
+        logs.sort(key=lambda entry: datetime.strptime(entry.date, "%Y-%m-%d"), reverse=True)
         return logs
 
     def format_log_entry(self, log):
