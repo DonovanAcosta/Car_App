@@ -177,6 +177,7 @@ class LogPage(Screen):
         # Create a unique key
         if isinstance(entry, Maintenance):
             key = f"maintenance_{entry.name}_{entry.date}"
+            print(self.car)
             self.create_Notification(self.car, entry)
         elif isinstance(entry, Mod):
             key = f"mod_{entry.name}_{entry.date}"
@@ -225,28 +226,28 @@ class LogPage(Screen):
         layout=FloatLayout()
         ###Information Label
         if isinstance(log, Maintenance):
-            label = Label(text=f'Date: {log.date}\nNext Service: {log.calcNextDate()}\nEvery: {log.freq} {log.unit}\nDescription: {log.description}', pos_hint={'x':0.0, 'y':0.3})
+            label = Label(text=f'Date: {log.date}\nNext Service: {log.calcNextDate(self.car)}\nEvery: {log.freq} {log.unit}\nDescription: {log.description}', pos_hint={'x':0.0, 'y':0.3})
         elif isinstance(log, Mod):
             label = Label(text=f'Date: {log.date}\nInstalled by: {log.mechanic}\nDescription: {log.description}', pos_hint={'x':0.0, 'y':0.3})
         layout.add_widget(label)
 
         #Delete Button
-        delete_button = Button(text='Delete', size_hint=(0.25,0.1), pos_hint={'x':0.0, 'y':0.0} )
+        delete_button = Button(text='Delete', size_hint=(0.25,0.1), pos_hint={'x':0.0, 'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         delete_button.bind(on_press=lambda instance: self.delete_log(self, log))
         layout.add_widget(delete_button)
 
         ###Edit
-        edit_button = Button(text='Edit', size_hint=(0.25,0.1), pos_hint={'x':0.25,'y':0.0})
+        edit_button = Button(text='Edit', size_hint=(0.25,0.1), pos_hint={'x':0.25,'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         edit_button.bind(on_press=lambda instance: self.mait_popup_again(self, log, 'Edit'))
         layout.add_widget(edit_button)
 
         ##Notify Button
-        notify_button = Button(text='Notify Me', size_hint=(0.25,0.1), pos_hint={'x':0.50,'y':0.0})
+        notify_button = Button(text='Notify Me', size_hint=(0.25,0.1), pos_hint={'x':0.50,'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         notify_button.bind(on_press=lambda instance: self.create_Notification(self.car, log))
         layout.add_widget(notify_button)
 
         ###Update Button
-        update_button = Button(text='Update', size_hint=(0.25,0.1), pos_hint={'x':0.75,'y':0.0})
+        update_button = Button(text='Update', size_hint=(0.25,0.1), pos_hint={'x':0.75,'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         update_button.bind(on_press=lambda instance: self.mait_popup_again(self, log, 'Update'))
         layout.add_widget(update_button)
 
@@ -328,13 +329,14 @@ class LogPage(Screen):
         
 
     def create_Notification(instance, car, mait):
+        print(car)
         next_date = mait.calcNextDate(car)
         notification = Notification(car.id, mait.name, next_date)
 
         with shelve.open("Notifications") as db:
             db[notification.notificationId] = notification
             print(f"Notification '{notification.maitenance}' add to the database with ID: {notification.notificationId}")
-            notification_set(mait)
+            notification_set(mait, car)
         return
 
 
