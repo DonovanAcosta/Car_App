@@ -118,6 +118,7 @@ class LogPage(Screen):
 
         self.save_to_database(maintenance)
         self.popup.dismiss()
+        self.logpopup.dismiss()
         self.display_log_page(self.car)
 
     def show_add_mod_popup(self, instance):
@@ -251,9 +252,9 @@ class LogPage(Screen):
         update_button.bind(on_press=lambda instance: self.mait_popup_again(self, log, 'Update'))
         layout.add_widget(update_button)
 
-        self.popup = Popup(title=f'{log.name}', content=layout, size_hint=(0.8, 0.8), background='')
-        self.popup.background_color = (0.05, 0.1, 0.2, 1)
-        self.popup.open()
+        self.logpopup = Popup(title=f'{log.name}', content=layout, size_hint=(0.8, 0.8), background='')
+        self.logpopup.background_color = (0.05, 0.1, 0.2, 1)
+        self.logpopup.open()
 
         return
     
@@ -271,7 +272,7 @@ class LogPage(Screen):
         with shelve.open(f"cars/{self.car.id}db") as db:
             if key in db:
                 del db[key]
-        self.popup.dismiss()
+        self.logpopup.dismiss()
         self.display_log_page(self.car)
 
     def mait_popup_again(self, instance, log, version):
@@ -310,7 +311,10 @@ class LogPage(Screen):
 
         ###Submit and Cancel buttons
         submit_button = Button(text='Submit', size_hint=(0.4,0.1), pos_hint={'x':0.1, 'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
-        submit_button.bind(on_press=self.add_maintenance)
+        if version == 'Update':
+            submit_button.bind(on_press=self.add_maintenance)
+        elif version == 'Edit':
+            submit_button.bind(on_press=lambda instance:self.edit_maitenance(self, log))
         cancel_button = Button(text='Cancel', size_hint=(0.4,0.1), pos_hint={'x':0.5, 'y':0.0},background_color=(0, 0.6, 0.8, 1),color=(1, 1, 1, 1))
         cancel_button.bind(on_press=self.close_popup)
 
@@ -327,6 +331,38 @@ class LogPage(Screen):
         self.popup.background_color = (0.05, 0.1, 0.2, 1)
         self.popup.open()
         
+    def edit_maitenance(instance, self, log):
+        name = self.name_input.text
+        date = self.date_input.text
+        frequency = self.freq_input.text
+        unit = self.unit_button.text
+        description = self.descr_input.text
+
+        maintenance = Maintenance(name, description, unit, frequency, date)
+
+        self.edit_data_base(maintenance)
+        self.popup.dismiss()
+        self.logpopup.dismiss()
+        self.display_log_page(self.car)
+
+    def edit_data_base(self, entry):
+        # Determine the type of entry
+        entry_type = type(entry).__name__.lower()  # e.g., "maintenance" or "mod"
+        
+        # Create a unique key
+        if isinstance(entry, Maintenance):
+            key = f"maintenance_{entry.name}_{entry.date}"
+        elif isinstance(entry, Mod):
+            key = f"mod_{entry.name}_{entry.date}"
+        else:
+            raise ValueError("Unsupported entry type")
+
+        # Save the object in the database
+        with shelve.open(f"cars/{self.car.id}db") as db:
+            db[key] = entry
+            return
+
+
 
     def create_Notification(instance, car, mait):
         print(car)
